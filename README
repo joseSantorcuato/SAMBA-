@@ -119,7 +119,7 @@ Samba listo para utilizar
 
 
 
-Estos pasos que vienen son opcionales, pemriten dejar automatizado el incicio de samba al cargar sistema
+Estos pasos que vienen son opcionales, permiten dejar automatizado el incicio de samba al cargar sistema
 
 
 Creamos con gedit un archivo y lo guardamos con extensión .bash debe quedar así y en esta ruta
@@ -143,7 +143,7 @@ Ahora vamos al archivo local, este archivo ejecuta cada vez que se inicia el sis
 Agrega lo siguiente:
 
 
-	/bin/sh /home/misUsuario/sambarun.sh #esta es la ruta del script que creamos más arriba
+	/bin/sh /home/miUsuario/sambarun.sh #esta es la ruta del script que creamos más arriba
 
 
 
@@ -163,7 +163,7 @@ Debe quedar similar a esto el archivo
 	# By default this script does nothing.
 
 
-	/bin/sh /home/hackingacer/sambarun.sh
+	/bin/sh /home/miUsuario/sambarun.sh
 	exit 0
 
 Guarda y reinicia...estamos listos!
