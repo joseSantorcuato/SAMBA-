@@ -1,0 +1,175 @@
+INSTALACIÓN Y CONFIGURACIÓN SAMBA, PARA CREAR SERVIDOR DE ARCHIOS Y CARPETAS
+JOSÉ SANTORCUATO TAPIA
+santorcuato76@gmail.com
+CHILE 207
+
+
+El siguiente manual está diseñado para inastalación sobre Ubuntu 16.04 LTS versión escritorio AMD64.Permite participar en red local e intercambiar archivos a usuarios linux, windows, osx.
+
+Por defecto UBuntu 16.04 trae la posibilidad de compartir una carpeta o las que quiera, ubicadas en cualquier directorio. Para este tutorial he creado una carpeta en documentos que se llama compartida, la que quiero compartir, con botón derecho sobre la carpeta  que tiene esta ruta, la usaré de ejemplo 
+
+/home/miUsuario/Documentos/compartida 
+
+Instalar samba
+
+
+      sudo apt install samba
+
+
+Revisar el estado
+
+
+      sudo smbstatus
+
+
+Obtner versión de samba
+
+
+      sudo smbd --version
+
+
+Historial
+
+
+      systemctl status smbd
+
+
+Editamos el fichero de configuración de samba
+
+
+	sudo gedit /etc/samba/smb.conf
+
+
+Editar este campo de
+
+
+	workgroup = WORKGROUP
+
+a 
+
+	workgroup = TUGRUPO #El nombre es para identificar el grupo de trabajo.
+
+
+También agregamos antes de [printers]
+
+
+	[compartida] #definción de configuración
+
+
+	comment = compartida #nombre
+	path = /home/miUsuario/Documentos/compartida #ruta puede ser la que quieras
+	guest ok = no #solo usuarios permitidos
+	writable = yes #se puede escribir
+	valid users = @sambashare #usuarios válidos solo del grupo 
+
+Guarda el archivo y corre el siguiente comando en terminal:
+
+	testparm
+
+Revisará que todo esté bien
+
+
+Crearemos un usuario para utilzar samba
+
+ 	sudo adduser usuarioSamba
+
+Solicita contraseña, apretar intro y seguir.No es necesario llenar campos.
+
+Le asignamos una contraseña para samba
+
+
+	smbpasswd -a usuarioSamba
+
+
+Reiniciamos samba
+
+
+	sudo systemctl restart smbd
+
+En el fichero de configuración agregamos como usuarios válidos a los de  sambashare (valid users = @sambashare).Agregaremos un grupo llamado sambashare y los usuarios al grupo.
+
+
+	sudo groupadd sambashare
+
+
+Agregamos el usuario al grupo
+
+
+	sudo gpasswd -a usuarioSamba  sambashare
+
+
+Agregamos al grupo smabashare como dueño recursico de la carpeta compartida
+
+
+	sudo chgrp sambashare /home/miUsuario/Documentos/compartida -R
+
+
+Permisos de estricura
+
+
+	sudo chmod g+w /home/miUsuario/Documentos/compartida -R
+
+Puedes inciar el servidor con 
+
+
+	systemctl restart smbd
+
+
+Samba listo para utilizar 
+
+
+
+Estos pasos que vienen son opcionales, pemriten dejar automatizado el incicio de samba al cargar sistema
+
+
+Creamos con gedit un archivo y lo guardamos con extensión .bash debe quedar así y en esta ruta
+
+
+/home/miUsuario/Documentos/sambarun.sh
+
+
+Agrega el siguiente comando y guarda el
+
+
+	systemctl restart smbd
+
+
+Ahora vamos al archivo local, este archivo ejecuta cada vez que se inicia el sistema lo que esté adentro, en este cao queremos ejecute al iniciar el servidor samba.
+
+
+	sudo gedit /etc/rc.local
+
+
+Agrega lo siguiente:
+
+
+	/bin/sh /home/misUsuario/sambarun.sh #esta es la ruta del script que creamos más arriba
+
+
+
+Debe quedar similar a esto el archivo
+
+	#!/bin/sh -e
+	#
+	# rc.local
+	#
+	# This script is executed at the end of each multiuser runlevel.
+	# Make sure that the script will "exit 0" on success or any other
+	# value on error.
+	#
+	# In order to enable or disable this script just change the execution
+	# bits.
+	#
+	# By default this script does nothing.
+
+
+	/bin/sh /home/hackingacer/sambarun.sh
+	exit 0
+
+Guarda y reinicia...estamos listos!
+        
+
+
+	
+
+
