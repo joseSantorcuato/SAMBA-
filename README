@@ -6,133 +6,79 @@ CHILE 207
 
 El siguiente manual está diseñado para inastalación sobre Ubuntu 16.04 LTS versión escritorio AMD64.Permite participar en red local e intercambiar archivos a usuarios linux, windows, osx.
 
-Por defecto UBuntu 16.04 trae la posibilidad de compartir una carpeta o las que quiera, ubicadas en cualquier directorio. Para este tutorial he creado una carpeta en documentos que se llama compartida, la que quiero compartir, con botón derecho sobre la carpeta  que tiene esta ruta, la usaré de ejemplo 
+Por defecto UBuntu 16.04 trae la posibilidad de compartir una carpeta o las que quiera, ubicadas en cualquier directorio. Para esta instalación utilizaremos /home/nombreusuario/Documentos/compartida , la carpeta todavía no la haré.
 
-/home/miUsuario/Documentos/compartida 
 
-Instalar samba
+Creamos un usuario "usuariosamba" le daremos luego privilegios root y agregamos a samba
 
+sudo adduser usuariosamba
 
-      sudo apt install samba
+Pedrirá contraseñas, luego puede omitir nombre, dirección etc
 
+Ahora lo agregamos a samba
 
-Revisar el estado
+smbpasswd -a usuariosamba
 
+Creamos carpeta para compartir y error
 
-      sudo smbstatus
+No está usuariosamba en sudoers
 
+sudo gedit gedit /etc/sudoers
 
-Obtner versión de samba
+# User privilege specification
+root	ALL=(ALL:ALL) ALL
+usuariosamba	ALL=(ALL:ALL) ALL
 
+Lo agregas donde está el root
 
-      sudo smbd --version
+AHora lgin desde usuariosamba y corre el comando
 
+mkdir -p compartida
 
-Historial
+Con botón derecho del mouse sobre la carpeta cambia permitir que otros puedan leer y escribir, modificar compartición.
 
+error*
 
-      systemctl status smbd
+Seguramente arrojará error 255 debes editar el archivo de configiración samba
 
 
-Editamos el fichero de configuración de samba
+sudo gedit /etc/samba/smb.conf
 
 
-	sudo gedit /etc/samba/smb.conf
+Bajo [global] agrega
 
 
-Editar este campo de
+usershare owner only = false
 
 
-	workgroup = WORKGROUP
+Guarda el archivo y trata de repetir el mofificar compartición sobre ela carpeta permitiendo que otro puedan leer y escribir
 
-a 
 
-	workgroup = TUGRUPO #El nombre es para identificar el grupo de trabajo.
+Nuevamente edita el archivo samba y agrega
 
 
-También agregamos antes de [printers]
+sudo gedit /etc/samba/smb.conf
 
+workgroup = TUGRUPO
 
-	[compartida] #definción de configuración
+Y sobre [printers] agrega
 
 
-	comment = compartida #nombre
-	path = /home/miUsuario/Documentos/compartida #ruta puede ser la que quieras
-	guest ok = no #solo usuarios permitidos
-	writable = yes #se puede escribir
-	valid users = @sambashare #usuarios válidos solo del grupo 
+[compartida]
 
-Guarda el archivo y corre el siguiente comando en terminal:
 
-	testparm
+comment = compartida 
+	path = /home/nombreusuario/Documentos/compartida
+        browseable = yes
+	guest ok = no 
+	writeable = yes
+        create mask = 0777
+        directory mask = 0777 
+	valid users = usuariosamba
 
-Revisará que todo esté bien
+Reincia el servicio
 
-
-Crearemos un usuario para utilzar samba
-
- 	sudo adduser usuarioSamba
-
-Solicita contraseña, apretar intro y seguir.No es necesario llenar campos.
-
-Le asignamos una contraseña para samba
-
-
-	smbpasswd -a usuarioSamba
-
-
-Reiniciamos samba
-
-
-	sudo systemctl restart smbd
-
-En el fichero de configuración agregamos como usuarios válidos a los de  sambashare (valid users = @sambashare).Agregaremos un grupo llamado sambashare y los usuarios al grupo.
-
-
-	sudo groupadd sambashare
-
-
-Agregamos el usuario al grupo
-
-
-	sudo gpasswd -a usuarioSamba  sambashare
-
-
-Agregamos al grupo smabashare como dueño recursico de la carpeta compartida
-
-
-	sudo chgrp sambashare /home/miUsuario/Documentos/compartida -R
-
-
-Permisos de estricura
-
-
-	sudo chmod g+w /home/miUsuario/Documentos/compartida -R
-
-Puedes inciar el servidor con 
-
-
-	systemctl restart smbd
-
-
-Samba listo para utilizar 
-
-
-
-Estos pasos que vienen son opcionales, permiten dejar automatizado el incicio de samba al cargar sistema
-
-
-Creamos con gedit un archivo y lo guardamos con extensión .bash debe quedar así y en esta ruta
-
-
-/home/miUsuario/Documentos/sambarun.sh
-
-
-Agrega el siguiente comando y guarda el
-
-
-	systemctl restart smbd
-
+sudo systemctl restart smbd 
 
 Ahora vamos al archivo local, este archivo ejecuta cada vez que se inicia el sistema lo que esté adentro, en este cao queremos ejecute al iniciar el servidor samba.
 
@@ -143,7 +89,7 @@ Ahora vamos al archivo local, este archivo ejecuta cada vez que se inicia el sis
 Agrega lo siguiente:
 
 
-	/bin/sh /home/miUsuario/sambarun.sh #esta es la ruta del script que creamos más arriba
+	/bin/sh /home/nombreusuario/sambarun.sh #esta es la ruta del script que creamos más arriba
 
 
 
@@ -163,13 +109,12 @@ Debe quedar similar a esto el archivo
 	# By default this script does nothing.
 
 
-	/bin/sh /home/miUsuario/sambarun.sh
+	/bin/sh /home/nombreusuario/sambarun.sh
 	exit 0
 
 Guarda y reinicia...estamos listos!
         
 
 
-	
 
 
