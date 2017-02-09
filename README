@@ -51,13 +51,14 @@ Bajo [global] agrega
 usershare owner only = false
 
 
-Guarda el archivo y trata de repetir el mofificar compartición sobre ela carpeta permitiendo que otro puedan leer y escribir
+Guarda el archivo y trata de repetir el mofificar compartición sobre la carpeta permitiendo que otro puedan leer y escribir
 
 
 Nuevamente edita el archivo samba y agrega
 
 
 sudo gedit /etc/samba/smb.conf
+
 
 workgroup = TUGRUPO
 
